@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 
+	"github.com/golang/glog"
 	"github.com/urfave/cli"
 
 	kongapp "github.com/xigang/kongctl/cmd/app"
@@ -57,6 +58,6 @@ func main() {
 	sort.Sort(cli.CommandsByName(app.Commands))
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Printf("failed to run kong api gateway command line tool.")
+		glog.Errorf("%+v", err)
 	}
 }
