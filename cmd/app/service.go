@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/golang-toolkit/common"
 	"github.com/urfave/cli"
 
 	"github.com/xigang/kongctl/common/tools"
@@ -33,8 +32,6 @@ type ServiceConfig struct {
 	WriteTimeout   int    `json:"write_timeout"`   //the timeout in milliseconds between two successive write operations for transmitting a request to the upstream server.
 	ReadTimeout    int    `json:"read_timeout"`    //the timeout in milliseconds between two successive read operations for transmitting a request to the upstream server
 	URL            string `json:"url"`             //shorthand attribute to set protocol, host, port and path at once. This attribute is write-only
-	CreatedAt      int64  `json:"created_at"`
-	UpdatedAt      int64  `json:"updated_at"`
 }
 
 var commonFlags = []cli.Flag{
@@ -117,12 +114,6 @@ var ServiceCommand = cli.Command{
 				},
 			},
 			Action: get,
-		},
-		{
-			Name:   "update",
-			Usage:  "update service object",
-			Flags:  commonFlags,
-			Action: update,
 		},
 		{
 			Name:  "delete",
@@ -247,49 +238,6 @@ func get(c *cli.Context) error {
 	}
 
 	tools.IndentFromBody(body)
-	return nil
-}
-
-func update(c *cli.Context) error {
-	name := c.String("name")
-	id := c.String("id")
-
-	var requestURL string
-	if name != "" {
-		requestURL = fmt.Sprintf("%s/%s", SERVICE_RESOURCE_OBJECT, name)
-	} else if id != "" {
-		requestURL = fmt.Sprintf("%s/%s", SERVICE_RESOURCE_OBJECT, id)
-	} else {
-		return fmt.Errorf("name: %s id: %s is invalid", name, id)
-	}
-
-	fmt.Printf("id: %s name: %s, host: %s, port: %d procotol: %s, path: %s\n", id, name, c.String("host"), c.Int("port"), c.String("procotol"), c.String("path"))
-
-	cfg := &ServiceConfig{
-		Protocol:       c.String("protocol"),
-		Host:           c.String("host"),
-		Port:           c.Int("port"),
-		Path:           c.String("path"),
-		Retries:        c.Int("retries"),
-		ConnectTimeout: c.Int("connect_timeout"),
-		WriteTimeout:   c.Int("write_timeout"),
-		ReadTimeout:    c.Int("read_timeout"),
-		URL:            c.String("url"),
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	serverResponse, err := GatewayClient.PATCH(ctx, requestURL, nil, cfg, nil)
-	if err != nil {
-		return err
-	}
-
-	body, err := ioutil.ReadAll(serverResponse.Body)
-	if err != nil {
-		return err
-	}
-	common.IndentFromBody(body)
 	return nil
 }
 
