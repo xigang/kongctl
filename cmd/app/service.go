@@ -89,7 +89,7 @@ var commonFlags = []cli.Flag{
 	},
 }
 
-var ServiceCommand = cli.Command{
+var ServiceResourceObjectCommand = cli.Command{
 	Name:  "service",
 	Usage: "the kong service object.",
 
@@ -98,7 +98,7 @@ var ServiceCommand = cli.Command{
 			Name:   "create",
 			Usage:  "create service object",
 			Flags:  commonFlags,
-			Action: create,
+			Action: createServiceObject,
 		},
 		{
 			Name:  "get",
@@ -113,7 +113,7 @@ var ServiceCommand = cli.Command{
 					Usage: "the service name",
 				},
 			},
-			Action: get,
+			Action: getServiceObject,
 		},
 		{
 			Name:  "delete",
@@ -128,12 +128,12 @@ var ServiceCommand = cli.Command{
 					Usage: "the service name",
 				},
 			},
-			Action: del,
+			Action: deleteServiceObject,
 		},
 		{
 			Name:   "list",
 			Usage:  "list all services object",
-			Action: list,
+			Action: getAllServices,
 		},
 	},
 }
@@ -149,7 +149,7 @@ func checkArgs(c *cli.Context) error {
 	return nil
 }
 
-func create(c *cli.Context) error {
+func createServiceObject(c *cli.Context) error {
 	err := checkArgs(c)
 	if err != nil {
 		return err
@@ -185,7 +185,7 @@ func create(c *cli.Context) error {
 	return nil
 }
 
-func list(c *cli.Context) error {
+func getAllServices(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
@@ -211,7 +211,7 @@ func list(c *cli.Context) error {
 	return nil
 }
 
-func get(c *cli.Context) error {
+func getServiceObject(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
 
@@ -241,7 +241,7 @@ func get(c *cli.Context) error {
 	return nil
 }
 
-func del(c *cli.Context) error {
+func deleteServiceObject(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
 

@@ -51,7 +51,14 @@ func main() {
 	}
 
 	app.Commands = []cli.Command{
-		kongapp.ServiceCommand,
+		kongapp.ServiceResourceObjectCommand,
+		kongapp.RouteResourceObjectCommand,
+		kongapp.ConsumerResourceObjectCommnad,
+		kongapp.CertificateResourceObjectCommand,
+		kongapp.PluginResourceObjectCommand,
+		kongapp.SNIResourceObjectCommand,
+		kongapp.UpstreamResourceObjectCommand,
+		kongapp.TargetResourceObjectCommand,
 	}
 
 	sort.Sort(cli.FlagsByName(app.Flags))
