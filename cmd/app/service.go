@@ -34,7 +34,7 @@ type ServiceConfig struct {
 	URL            string `json:"url"`             //shorthand attribute to set protocol, host, port and path at once. This attribute is write-only
 }
 
-var commonFlags = []cli.Flag{
+var serviceCommonFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:  "id",
 		Usage: "the service id",
@@ -91,13 +91,13 @@ var commonFlags = []cli.Flag{
 
 var ServiceResourceObjectCommand = cli.Command{
 	Name:  "service",
-	Usage: "the kong service object.",
+	Usage: "The kong service object.",
 
 	Subcommands: []cli.Command{
 		{
 			Name:   "create",
 			Usage:  "create service object",
-			Flags:  commonFlags,
+			Flags:  serviceCommonFlags,
 			Action: createServiceObject,
 		},
 		{
@@ -149,6 +149,7 @@ func checkArgs(c *cli.Context) error {
 	return nil
 }
 
+//createServiceObject create service
 func createServiceObject(c *cli.Context) error {
 	err := checkArgs(c)
 	if err != nil {
@@ -185,6 +186,7 @@ func createServiceObject(c *cli.Context) error {
 	return nil
 }
 
+//getAllServices list all services
 func getAllServices(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
@@ -211,6 +213,7 @@ func getAllServices(c *cli.Context) error {
 	return nil
 }
 
+//getAllServices retrieve a service
 func getServiceObject(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
@@ -241,6 +244,7 @@ func getServiceObject(c *cli.Context) error {
 	return nil
 }
 
+//deleteServiceObject delete a service
 func deleteServiceObject(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
@@ -262,6 +266,6 @@ func deleteServiceObject(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("delete service success.\n")
+	fmt.Printf("delete service %s success.\n", id)
 	return nil
 }
