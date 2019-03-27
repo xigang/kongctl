@@ -35,10 +35,6 @@ func main() {
 		host := c.GlobalString("host")
 		token := c.GlobalString("auth")
 
-		if host == "" || token == "" {
-			return fmt.Errorf("gateway(kong) host: %s or auth: %s is invalid", host, token)
-		}
-
 		customHTTPHeaders := make(map[string]string)
 		customHTTPHeaders["Authorization"] = fmt.Sprintf("Basic %s", token)
 
