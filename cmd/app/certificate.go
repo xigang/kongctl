@@ -4,6 +4,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+//TODO
 var CertificateResourceObjectCommand = cli.Command{
 	Name:  "certificate",
 	Usage: "The kong certificate object.",
