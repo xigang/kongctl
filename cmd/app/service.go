@@ -12,6 +12,15 @@ import (
 	"github.com/xigang/kongctl/common/tools"
 )
 
+//docs: https://docs.konghq.com/0.14.x/admin-api/#service-object
+
+// Service entities, as the name implies, are abstractions of each of your own upstream services.
+// Examples of Services would be a data transformation microservice, a billing API, etc.
+// The main attribute of a Service is its URL (where Kong should proxy traffic to),
+// which can be set as a single string or by specifying its protocol, host, port and path individually.
+// Services are associated to Routes (a Service can have many Routes associated with it).
+// Routes are entry-points in Kong and define rules to match client requests. Once a Route is matched, Kong proxies the request to its associated Service
+
 const (
 	SERVICE_RESOURCE_OBJECT = "services"
 )
@@ -34,7 +43,7 @@ type ServiceConfig struct {
 	URL            string `json:"url"`             //shorthand attribute to set protocol, host, port and path at once. This attribute is write-only
 }
 
-var serviceCommonFlags = []cli.Flag{
+var serviceFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:  "id",
 		Usage: "the service id",
@@ -97,8 +106,8 @@ var ServiceResourceObjectCommand = cli.Command{
 		{
 			Name:   "create",
 			Usage:  "create service object",
-			Flags:  serviceCommonFlags,
-			Action: createServiceObject,
+			Flags:  serviceFlags,
+			Action: createService,
 		},
 		{
 			Name:  "get",
@@ -113,7 +122,7 @@ var ServiceResourceObjectCommand = cli.Command{
 					Usage: "the service name",
 				},
 			},
-			Action: getServiceObject,
+			Action: getService,
 		},
 		{
 			Name:  "delete",
@@ -128,34 +137,33 @@ var ServiceResourceObjectCommand = cli.Command{
 					Usage: "the service name",
 				},
 			},
-			Action: deleteServiceObject,
+			Action: deleteService,
 		},
 		{
 			Name:   "list",
 			Usage:  "list all services object",
 			Action: getAllServices,
 		},
+		{
+			Name:  "routes",
+			Usage: "list routes associated to a service",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "id",
+					Usage: "the service id",
+				},
+				cli.StringFlag{
+					Name:  "name",
+					Usage: "the service name",
+				},
+			},
+			Action: getRoutesByService,
+		},
 	},
 }
 
-func checkArgs(c *cli.Context) error {
-	name := c.String("name")
-	url := c.String("url")
-
-	if name == "" || url == "" {
-		return fmt.Errorf("name: %s url: %s is invalid.", name, url)
-	}
-
-	return nil
-}
-
-//createServiceObject create service
-func createServiceObject(c *cli.Context) error {
-	err := checkArgs(c)
-	if err != nil {
-		return err
-	}
-
+//createService create service.
+func createService(c *cli.Context) error {
 	cfg := &ServiceConfig{
 		Name:           c.String("name"),
 		Retries:        c.Int("retries"),
@@ -213,8 +221,8 @@ func getAllServices(c *cli.Context) error {
 	return nil
 }
 
-//getAllServices retrieve a service
-func getServiceObject(c *cli.Context) error {
+//getService retrieve a service by name or id.
+func getService(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
 
@@ -244,8 +252,8 @@ func getServiceObject(c *cli.Context) error {
 	return nil
 }
 
-//deleteServiceObject delete a service
-func deleteServiceObject(c *cli.Context) error {
+//deleteService delete a service.
+func deleteService(c *cli.Context) error {
 	name := c.String("name")
 	id := c.String("id")
 
@@ -267,5 +275,36 @@ func deleteServiceObject(c *cli.Context) error {
 	}
 
 	fmt.Printf("delete service %s success.\n", id)
+	return nil
+}
+
+func getRoutesByService(c *cli.Context) error {
+	serviceID := c.String("id")
+	serviceName := c.String("name")
+
+	var requestURL string
+	if serviceID != "" {
+		requestURL = fmt.Sprintf("%s/%s/routes", SERVICE_RESOURCE_OBJECT, serviceID)
+	} else if serviceName != "" {
+		requestURL = fmt.Sprintf("%s/%s/routes", SERVICE_RESOURCE_OBJECT, serviceName)
+	} else {
+		return fmt.Errorf("service id and anme is empty.")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	serverResponse, err := GatewayClient.Get(ctx, requestURL, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	body, err := ioutil.ReadAll(serverResponse.Body)
+	if err != nil {
+		return err
+	}
+
+	tools.IndentFromBody(body)
+
 	return nil
 }
