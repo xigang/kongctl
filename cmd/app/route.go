@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/urfave/cli"
@@ -12,11 +13,16 @@ import (
 	"github.com/xigang/kongctl/common/tools"
 )
 
+//docs: https://docs.konghq.com/1.0.x/admin-api/#route-object
+
+// The Route entities defines rules to match client requests. Each Route is associated with a Service,
+// and a Service may have multiple Routes associated to it.
+// Every request matching a given Route will be proxied to its associated Service.
+
 const (
 	ROUTE_RESOURCE_OBJECT = "routes"
 )
 
-//docs: https://docs.konghq.com/1.0.x/admin-api/#route-object
 type RouteConfig struct {
 	ID            string    `json:"id"`             //The route id
 	Protocols     []string  `json:"protocols"`      //A list of the protocols this Route should allow
@@ -91,7 +97,7 @@ var RouteResourceObjectCommand = cli.Command{
 			Name:   "create",
 			Usage:  "create route object",
 			Flags:  routeCommonFlags,
-			Action: createRouteObject,
+			Action: createRoute,
 		},
 		{
 			Name:  "get",
@@ -102,7 +108,7 @@ var RouteResourceObjectCommand = cli.Command{
 					Usage: "The route id",
 				},
 			},
-			Action: getRouteObject,
+			Action: getRoute,
 		},
 		{
 			Name:  "delete",
@@ -113,7 +119,7 @@ var RouteResourceObjectCommand = cli.Command{
 					Usage: "the route id",
 				},
 			},
-			Action: deleteRouteObject,
+			Action: deleteRoute,
 		},
 		{
 			Name:  "list",
@@ -124,14 +130,18 @@ var RouteResourceObjectCommand = cli.Command{
 					Value: "100",
 					Usage: "A limit on the number of objects to be returned per page",
 				},
+				cli.StringFlag{
+					Name:  "offset",
+					Usage: "A cursor used for pagination. offset is an object identifier that defines a place in the list",
+				},
 			},
-			Action: getRoutesObject,
+			Action: getRoutes,
 		},
 	},
 }
 
-//createRouteObject create route
-func createRouteObject(c *cli.Context) error {
+//createRoute create route
+func createRoute(c *cli.Context) error {
 	serviceID := c.String("service_id")
 	if serviceID == "" {
 		return fmt.Errorf("service_id is empty")
@@ -167,8 +177,8 @@ func createRouteObject(c *cli.Context) error {
 	return nil
 }
 
-//getRouteObject retrieve route object
-func getRouteObject(c *cli.Context) error {
+//getRoute retrieve route object
+func getRoute(c *cli.Context) error {
 	id := c.String("id")
 
 	var requestURL string
@@ -181,7 +191,14 @@ func getRouteObject(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
-	serverResponse, err := GatewayClient.Get(ctx, requestURL, nil, nil)
+	q := url.Values{}
+	q.Add("size", c.String("size"))
+
+	if c.String("offset") != "" {
+		q.Add("offset", c.String("offset"))
+	}
+
+	serverResponse, err := GatewayClient.Get(ctx, requestURL, q, nil)
 	if err != nil {
 		return err
 	}
@@ -195,7 +212,7 @@ func getRouteObject(c *cli.Context) error {
 	return nil
 }
 
-func deleteRouteObject(c *cli.Context) error {
+func deleteRoute(c *cli.Context) error {
 	id := c.String("id")
 
 	var requestURL string
@@ -222,8 +239,8 @@ func deleteRouteObject(c *cli.Context) error {
 	return nil
 }
 
-//getRoutesObject list all routes object
-func getRoutesObject(c *cli.Context) error {
+//getRoutes list all routes object.
+func getRoutes(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
