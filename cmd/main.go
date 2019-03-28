@@ -39,7 +39,7 @@ func main() {
 		customHTTPHeaders["Authorization"] = fmt.Sprintf("Basic %s", token)
 
 		var err error
-		if kongapp.GatewayClient, err = client.NewHTTPClient(host, customHTTPHeaders); err != nil {
+		if client.GatewayClient, err = client.NewHTTPClient(host, customHTTPHeaders); err != nil {
 			return err
 		}
 

@@ -9,6 +9,7 @@ import (
 
 	"github.com/urfave/cli"
 
+	"github.com/xigang/kongctl/common/client"
 	"github.com/xigang/kongctl/common/tools"
 )
 
@@ -180,7 +181,7 @@ func createService(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
-	serverResponse, err := GatewayClient.Post(ctx, SERVICE_RESOURCE_OBJECT, nil, cfg, nil)
+	serverResponse, err := client.GatewayClient.Post(ctx, SERVICE_RESOURCE_OBJECT, nil, cfg, nil)
 	if err != nil {
 		return err
 	}
@@ -199,7 +200,7 @@ func getAllServices(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
-	serverResponse, err := GatewayClient.Get(ctx, SERVICE_RESOURCE_OBJECT, nil, nil)
+	serverResponse, err := client.GatewayClient.Get(ctx, SERVICE_RESOURCE_OBJECT, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -238,7 +239,7 @@ func getService(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
-	serverResponse, err := GatewayClient.Get(ctx, requestURL, nil, nil)
+	serverResponse, err := client.GatewayClient.Get(ctx, requestURL, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -269,7 +270,7 @@ func deleteService(c *cli.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	_, err := GatewayClient.Delete(ctx, requestURL, nil, nil)
+	_, err := client.GatewayClient.Delete(ctx, requestURL, nil, nil)
 	if err != nil {
 		return err
 	}
@@ -294,7 +295,7 @@ func getRoutesByService(c *cli.Context) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	serverResponse, err := GatewayClient.Get(ctx, requestURL, nil, nil)
+	serverResponse, err := client.GatewayClient.Get(ctx, requestURL, nil, nil)
 	if err != nil {
 		return err
 	}
