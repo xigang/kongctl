@@ -12,11 +12,16 @@ import (
 	"github.com/xigang/kongctl/common/tools"
 )
 
+// https://docs.konghq.com/1.0.x/admin-api/#consumer-object
+
+// The Consumer object represents a consumer - or a user - of a Service.
+// You can either rely on Kong as the primary datastore,
+// or you can map the consumer list with your database to keep consistency between Kong and your existing primary datastore.
+
 const (
 	CONSUMER_RESOURCE_OBJECT = "consumers"
 )
 
-//https://docs.konghq.com/1.0.x/admin-api/#consumer-object
 type ConsumerConfig struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
@@ -38,16 +43,16 @@ var ConsumerResourceObjectCommnad = cli.Command{
 				},
 				cli.StringFlag{
 					Name:  "custom_id",
-					Usage: "field for storing an existing unique ID for the consumer - useful for mapping Kong with users in your existing database",
+					Usage: "the custom_id field for storing an existing unique ID for the consumer",
 				},
 			},
-			Action: createConsumerObject,
+			Action: createConsumer,
 		},
 		{
 			Name:   "list",
 			Usage:  "list all consumers object",
 			Flags:  []cli.Flag{},
-			Action: getConsumersObject,
+			Action: getConsumers,
 		},
 		{
 			Name:  "get",
@@ -62,7 +67,7 @@ var ConsumerResourceObjectCommnad = cli.Command{
 					Usage: "the consumer username",
 				},
 			},
-			Action: getConsumberObject,
+			Action: getConsumber,
 		},
 		{
 			Name:  "delete",
@@ -77,12 +82,13 @@ var ConsumerResourceObjectCommnad = cli.Command{
 					Usage: "the consumer username",
 				},
 			},
-			Action: deleteConsumberObject,
+			Action: deleteConsumber,
 		},
 	},
 }
 
-func createConsumerObject(c *cli.Context) error {
+//createConsumer create a consumer resource object
+func createConsumer(c *cli.Context) error {
 	username := c.String("username")
 	customID := c.String("custom_id")
 
@@ -113,7 +119,8 @@ func createConsumerObject(c *cli.Context) error {
 	return nil
 }
 
-func getConsumersObject(c *cli.Context) error {
+//getConsumers list all consumers resource object
+func getConsumers(c *cli.Context) error {
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
@@ -132,7 +139,8 @@ func getConsumersObject(c *cli.Context) error {
 	return nil
 }
 
-func getConsumberObject(c *cli.Context) error {
+//getConsumber get a consumer resource object
+func getConsumber(c *cli.Context) error {
 	id := c.String("id")
 	username := c.String("username")
 
@@ -163,7 +171,8 @@ func getConsumberObject(c *cli.Context) error {
 	return nil
 }
 
-func deleteConsumberObject(c *cli.Context) error {
+//deleteConsumber delete a consumer resource object
+func deleteConsumber(c *cli.Context) error {
 	id := c.String("id")
 	username := c.String("username")
 
