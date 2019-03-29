@@ -13,6 +13,8 @@ import (
 	"github.com/xigang/kongctl/common/client"
 	"github.com/xigang/kongctl/common/tools"
 	"github.com/xigang/kongctl/pkg/plugin/authentication"
+	"github.com/xigang/kongctl/pkg/plugin/logging"
+	"github.com/xigang/kongctl/pkg/plugin/utils"
 )
 
 // https://docs.konghq.com/0.14.x/admin-api/#plugin-object
@@ -25,10 +27,6 @@ const (
 	PLUGIN_RESOURCE_OBJECT = "plugins"
 )
 
-var avaliblePlugins map[string]string = map[string]string{
-	authentication.PLUGIN_BASIC_AUTH: "The plugin will check for valid credentials in the Proxy-Authorization and Authorization header",
-}
-
 type CommonPluginConfig struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
@@ -36,9 +34,6 @@ type CommonPluginConfig struct {
 	ServiceID  ServiceID `json:"service,omitempty"`
 	ConsumerID Comsumner `json:"consume,omitempty"`
 	Enabled    bool      `json:"enabled,omitempty"`
-	RunOn      string    `json:"run_on"`
-	Protocols  []string  `json:"protocols"`
-	Tags       string    `json:"tags,omitempty"`
 }
 
 type Route struct {
@@ -49,38 +44,6 @@ type Comsumner struct {
 	ID string `json:"id"`
 }
 
-var commonPluginFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "id",
-		Usage: "the plugin id",
-	},
-	cli.StringFlag{
-		Name:  "name",
-		Usage: "the plugin name",
-	},
-	cli.StringFlag{
-		Name:  "route_id",
-		Usage: "the unique identifier of the Route that should be associated to the newly-created plugin",
-	},
-	cli.StringFlag{
-		Name:  "service_id",
-		Usage: "the unique identifier of the Service that should be associated to the newly-created plugin",
-	},
-	cli.BoolFlag{
-		Name:  "enabled",
-		Usage: "whether the plugin is applied",
-	},
-	cli.StringFlag{
-		Name:  "run_on",
-		Value: "first",
-		Usage: "control on which Kong nodes this plugin will run, given a Service Mesh scenario. Accepted values are: * first, meaning “run on the first Kong node that is encountered by the request”",
-	},
-	cli.StringFlag{
-		Name:  "tags",
-		Usage: "an optional set of strings associated with the Plugin, for grouping and filtering",
-	},
-}
-
 var PluginResourceObjectCommand = cli.Command{
 	Name:  "plugin",
 	Usage: "The kong plugin object.",
@@ -88,26 +51,20 @@ var PluginResourceObjectCommand = cli.Command{
 	Subcommands: []cli.Command{
 		{
 			Name:   "avalible_plugins",
-			Usage:  "list current support plugins",
+			Usage:  "current support plugins object",
 			Action: avaiblePlugins,
 		},
 		{
 			Name:  "create",
 			Usage: "create a plugin object",
 			Subcommands: []cli.Command{
-				{
-					Name: "basic-auth",
-					Flags: append(commonPluginFlags, []cli.Flag{
-						cli.BoolFlag{Name: "hide_credentials", Usage: "an optional boolean value telling the plugin to show or hide the credential from the upstream service"},
-						cli.StringFlag{Name: "anonymous", Value: "", Usage: "an optional string (consumer uuid) value to use as an “anonymous” consumer if authentication fails"}}...),
-					Usage:  "create basic-auth plugin",
-					Action: authentication.CreateBasicAuthPlugin,
-				},
+				authentication.BasicAuthCommand,
+				logging.StatsDCommand,
 			},
 		},
 		{
 			Name:  "get",
-			Usage: "retrieve a plugin",
+			Usage: "retrieve a plugin object",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "id",
@@ -118,7 +75,7 @@ var PluginResourceObjectCommand = cli.Command{
 		},
 		{
 			Name:  "list",
-			Usage: "list all plugins",
+			Usage: "list all plugins object",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "service_id",
@@ -138,7 +95,7 @@ var PluginResourceObjectCommand = cli.Command{
 		},
 		{
 			Name:  "delete",
-			Usage: "delete a plugin",
+			Usage: "delete a plugin object",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "id",
@@ -152,9 +109,9 @@ var PluginResourceObjectCommand = cli.Command{
 
 //avaiblePlugins list all avaible plugins
 func avaiblePlugins(c *cli.Context) error {
-	fmt.Println("plugin_name:")
-	for name, info := range avaliblePlugins {
-		fmt.Printf("%-s\t%-s\n", name, info)
+	fmt.Printf("%-20s\t%-20s\n", "name", "message")
+	for name, info := range utils.AvaliblePlugins {
+		fmt.Printf("%-20s\t%-20s\n", name, info)
 	}
 	return nil
 }
@@ -189,19 +146,29 @@ func getPlugin(c *cli.Context) error {
 
 //getPlugins get all plugin
 func getPlugins(c *cli.Context) error {
+	name := c.String("name")
 	serviceID := c.String("service_id")
 	routeID := c.String("route_id")
+	consumerID := c.String("consumer_id")
 	size := c.String("size")
 
 	var requestURL string = fmt.Sprintf("%s", PLUGIN_RESOURCE_OBJECT)
 
 	q := url.Values{}
+	if name != "" {
+		q.Add("name", name)
+	}
+
 	if serviceID != "" {
 		q.Add("service_id", serviceID)
 	}
 
 	if routeID != "" {
 		q.Add("route_id", routeID)
+	}
+
+	if consumerID != "" {
+		q.Add("consumer_id", consumerID)
 	}
 
 	if size != "" {
