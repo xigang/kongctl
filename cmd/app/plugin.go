@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -27,12 +28,16 @@ const (
 	PLUGIN_RESOURCE_OBJECT = "plugins"
 )
 
+type Plugins struct {
+	Data []CommonPluginConfig `json:"data"`
+}
+
 type CommonPluginConfig struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
 	RouteID    Route     `json:"route,omitempty"`
 	ServiceID  ServiceID `json:"service,omitempty"`
-	ConsumerID Comsumner `json:"consume,omitempty"`
+	ConsumerID Comsumner `json:"consumer,omitempty"`
 	Enabled    bool      `json:"enabled,omitempty"`
 }
 
@@ -188,7 +193,18 @@ func getPlugins(c *cli.Context) error {
 		return err
 	}
 
-	tools.IndentFromBody(body)
+	plugins := &Plugins{}
+
+	if err = json.Unmarshal(body, plugins); err != nil {
+		return err
+	}
+
+	fmt.Printf("%-40s\t%-20s\t%-20s\n", "ID", "NAME", "ENABLED")
+	for _, p := range plugins.Data {
+		fmt.Printf("%-40s\t%-20s\t%-20t\n", p.ID, p.Name, p.Enabled)
+	}
+
+	// tools.IndentFromBody(body)
 	return nil
 }
 
