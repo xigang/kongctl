@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -22,6 +23,10 @@ import (
 const (
 	CONSUMER_RESOURCE_OBJECT = "consumers"
 )
+
+type Consumer struct {
+	Data []ConsumerConfig `json:"data"`
+}
 
 type ConsumerConfig struct {
 	ID       string `json:"id"`
@@ -135,7 +140,16 @@ func getConsumers(c *cli.Context) error {
 		return err
 	}
 
-	tools.IndentFromBody(body)
+	var cm Consumer
+
+	if err = json.Unmarshal(body, &cm); err != nil {
+		return err
+	}
+
+	fmt.Printf("%-35s\t%-10s\t%-10s\n", "ID", "USERNAME", "CUSTOM_ID")
+	for _, c := range cm.Data {
+		fmt.Printf("%-35s\t%-10s\t%-10s\n", c.ID, c.Username, c.CustomID)
+	}
 
 	return nil
 }
