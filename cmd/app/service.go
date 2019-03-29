@@ -215,9 +215,9 @@ func getAllServices(c *cli.Context) error {
 		return err
 	}
 
-	fmt.Printf("ID\t\t\t\t\t\t HOST_NAME\t\t\t PORT\t\t\t NAME\n")
+	fmt.Printf("%-35s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\t%-10s\n", "ID", "NAME", "PROCOTOL", "HOST", "PORT", "PATH", "READ_TIMEOUT", "WRITE_TIMEOUT")
 	for _, s := range services.Data {
-		fmt.Printf("id:%s\t\t host:%s\t\t port:%d\t\t name: %s\n", s.ID, s.Host, s.Port, s.Name)
+		fmt.Printf("%-35s\t%-10s\t%-10s\t%-10s\t%-10d\t%-10s\t%-10d\t%-10d\n", s.ID, s.Name, s.Protocol, s.Host, s.Port, s.Path, s.ReadTimeout, s.WriteTimeout)
 	}
 	return nil
 }
