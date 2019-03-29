@@ -24,16 +24,20 @@ const (
 	ROUTE_RESOURCE_OBJECT = "routes"
 )
 
+type RouteList struct {
+	Data []RouteConfig `json:"data"`
+}
+
 type RouteConfig struct {
-	ID            string    `json:"id"`             //The route id
-	Protocols     []string  `json:"protocols"`      //A list of the protocols this Route should allow
-	Methods       []string  `json:"methods"`        //A list of HTTP methods that match this route
-	Hosts         []string  `json:"hosts"`          //A list of domain names that match this route. When using http or https protocols, at least one of hosts, paths, or methods must be set
-	Paths         []string  `json:"paths"`          //A list of paths that match this route.When using http or https protocols, at least one of hosts, paths, or methods must be set.
-	RegexPriority int       `json:"regex_priority"` //A number used to choose which route resolves a given request when several routes match it using regexes simultaneously.
-	StripPath     bool      `json:"strip_path"`     //When matching a Route via one of the paths, strip the matching prefix from the upstream request URL
-	PreserveHost  bool      `json:"preserve_host"`  //When matching a Route via one of the hosts domain names, use the request Host header in the upstream request headers
-	Service       ServiceID `json:"service"`        //The Service this Route is associated to.
+	ID            string    `json:"id"`                       //The route id
+	Protocols     []string  `json:"protocols"`                //A list of the protocols this Route should allow
+	Methods       []string  `json:"methods,omitempty"`        //A list of HTTP methods that match this route
+	Hosts         []string  `json:"hosts,omitempty"`          //A list of domain names that match this route. When using http or https protocols, at least one of hosts, paths, or methods must be set
+	Paths         []string  `json:"paths,omitempty"`          //A list of paths that match this route.When using http or https protocols, at least one of hosts, paths, or methods must be set.
+	RegexPriority int       `json:"regex_priority,omitempty"` //A number used to choose which route resolves a given request when several routes match it using regexes simultaneously.
+	StripPath     bool      `json:"strip_path,omitempty"`     //When matching a Route via one of the paths, strip the matching prefix from the upstream request URL
+	PreserveHost  bool      `json:"preserve_host,omitempty"`  //When matching a Route via one of the hosts domain names, use the request Host header in the upstream request headers
+	Service       ServiceID `json:"service"`                  //The Service this Route is associated to.
 }
 
 type ServiceID struct {
@@ -43,12 +47,10 @@ type ServiceID struct {
 var routeCommonFlags = []cli.Flag{
 	cli.StringSliceFlag{
 		Name:  "protocols",
-		Value: &cli.StringSlice{"http", "https"},
 		Usage: "A list of the protocols this route should allow",
 	},
 	cli.StringSliceFlag{
 		Name:  "methods",
-		Value: &cli.StringSlice{"GET", "POST"},
 		Usage: "A list of HTTP methods that match this Route",
 	},
 	cli.StringSliceFlag{
@@ -256,5 +258,6 @@ func getRoutes(c *cli.Context) error {
 	}
 
 	tools.IndentFromBody(body)
+
 	return nil
 }
