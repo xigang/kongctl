@@ -22,19 +22,26 @@ const (
 	PLUGIN_STATSD = "statsd"
 )
 
-type StatsDConfig struct {
+type Statsd struct {
+	ID string `json:"ID,omitempty"`
 	//The name of the plugin to use, in this case statsd
 	Name string `json:"name"`
+	//Consumer_id is the id of the Consumer we want to associate with this plugin.
+	ConsumerID string       `json:"consumer_id,omitempty"`
+	ServiceID  string       `json:"service_id,omitempty"`
+	Enabled    bool         `json:"enabled,omitempty"`
+	Config     StatsDConfig `json:"config"`
+}
+
+type StatsDConfig struct {
 	//The IP address or host name to send data to.
 	Host string `json:"host"`
 	//The port to send data to on the upstream server
 	Port int `json:"port"`
 	//List of Metrics to be logged. Available values are described under Metrics.docs:https://docs.konghq.com/hub/kong-inc/statsd/#metrics
-	Metrics []string `json:"metrics"`
+	Metrics []string `json:"metrics,omitempty"`
 	//String to be prefixed to each metric’s name.
-	Prefix string `json:"prefix"`
-	//Consumer_id is the id of the Consumer we want to associate with this plugin.
-	ConsumerID string `json:"consumer_id,omitempty"`
+	Prefix string `json:"prefix,omitempty"`
 }
 
 var StatsDCommand = cli.Command{
@@ -71,21 +78,22 @@ func createStatsDPlugin(c *cli.Context) error {
 		requestURL = "plugins"
 	}
 
-	cfg := &StatsDConfig{
-		Name:   name,
+	config := StatsDConfig{
 		Host:   host,
 		Port:   port,
 		Prefix: prefix,
 	}
 
-	if consumerID != "" {
-		cfg.ConsumerID = consumerID
+	statsd := Statsd{
+		Name:       name,
+		Config:     config,
+		ConsumerID: consumerID,
 	}
 
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cannel()
 
-	serverResponse, err := client.GatewayClient.Post(ctx, requestURL, nil, cfg, nil)
+	serverResponse, err := client.GatewayClient.Post(ctx, requestURL, nil, statsd, nil)
 	if err != nil {
 		return err
 	}
