@@ -20,20 +20,24 @@ func main() {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:  "host",
-			Value: "http://127.0.0.1:8001",
-			Usage: "api gateway(kong) server address",
+			Name:   "host",
+			EnvVar: "KONG_HOST",
+			Usage:  "api gateway(kong) server address",
 		},
 		cli.StringFlag{
-			Name:  "auth",
-			Value: "",
-			Usage: "basic authoritarian for api gateway",
+			Name:   "auth",
+			EnvVar: "KONG_AUTH",
+			Usage:  "basic authoritarian for api gateway",
 		},
 	}
 
 	app.Before = func(c *cli.Context) error {
 		host := c.GlobalString("host")
 		token := c.GlobalString("auth")
+
+		if host == "" || token == "" {
+			fmt.Printf("please specify the KONG_HOST and KONG_AUTH environment variables")
+		}
 
 		customHTTPHeaders := make(map[string]string)
 		customHTTPHeaders["Authorization"] = fmt.Sprintf("Basic %s", token)
