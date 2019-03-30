@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c259b6b576c5f876da401511d1f0957ea2fe5d6a9b30cadd4c45e4ae2d838409"
-  name = "github.com/golang-toolkit/common"
+  digest = "1:1ba1d79f2810270045c328ae5d674321db34e3aae468eb4233883b473c5c0467"
+  name = "github.com/golang/glog"
   packages = ["."]
   pruneopts = "UT"
-  revision = "14aba6b3897dbb82a69741248f46228de271c1e0"
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -40,7 +40,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/golang-toolkit/common",
+    "github.com/golang/glog",
     "github.com/pkg/errors",
     "github.com/urfave/cli",
     "golang.org/x/net/context/ctxhttp",
