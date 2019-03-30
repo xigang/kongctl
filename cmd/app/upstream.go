@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -23,6 +24,10 @@ import (
 const (
 	UPSTREAM_RESOURCE_OBJECT = "upstreams"
 )
+
+type Upstream struct {
+	Data []UpstreamConfig `json:"data"`
+}
 
 type UpstreamConfig struct {
 	//The upstream ID
@@ -288,7 +293,16 @@ func getUpstreams(c *cli.Context) error {
 		return err
 	}
 
-	tools.IndentFromBody(body)
+	upstreams := &Upstream{}
+	if err = json.Unmarshal(body, upstreams); err != nil {
+		return err
+	}
+
+	fmt.Printf("%-35s\t%-20s\t%-20s\t%-20s%-20s\t%-20s\n", "ID", "NAME", "HASH_ON", "HASH_FALLBACK", "HASH_ON_COOKIE_PATH", "SLOTS")
+	for _, u := range upstreams.Data {
+		fmt.Printf("%-35s\t%-20s\t%-20s\t%-20s%-20s\t%-20d\n", u.ID, u.Name, u.HashOn, u.HashFallback, u.HashOnCookiePath, u.Slots)
+	}
+
 	return nil
 }
 
