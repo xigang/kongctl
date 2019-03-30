@@ -35,7 +35,7 @@ func main() {
 		host := c.GlobalString("host")
 		token := c.GlobalString("auth")
 
-		if host == "" || token == "" {
+		if host == "" {
 			fmt.Printf("please specify the KONG_HOST and KONG_AUTH environment variables")
 		}
 
