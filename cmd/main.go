@@ -15,7 +15,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "kongctl"
-	app.Usage = "kong(0.14.0) api gateway command line tool."
+	app.Usage = "kong(0.14.0) api gateway command line tool.\n\t https://docs.konghq.com/0.14.x/admin-api"
 	app.Version = "0.1.0"
 
 	app.Flags = []cli.Flag{
