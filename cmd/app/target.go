@@ -39,10 +39,6 @@ type TargetConfig struct {
 
 var targetCommonFlags = []cli.Flag{
 	cli.StringFlag{
-		Name:  "id",
-		Usage: "the target id",
-	},
-	cli.StringFlag{
 		Name:  "upstream_id",
 		Usage: "the upstream id",
 	},
@@ -73,9 +69,12 @@ var TargetResourceObjectCommand = cli.Command{
 			Action: createTarget,
 		},
 		{
-			Name:   "list",
-			Usage:  "Lists all targets currently active on the upstream’s load balancing wheel",
-			Flags:  targetCommonFlags,
+			Name:  "list",
+			Usage: "Lists all targets currently active on the upstream’s load balancing wheel",
+			Flags: append(targetCommonFlags, cli.StringFlag{
+				Name:  "id",
+				Usage: "the target id",
+			}),
 			Action: getTargets,
 		},
 		{
@@ -214,13 +213,13 @@ func deleteTarget(c *cli.Context) error {
 
 	var requestURL string
 	if upstreamID != "" && targetID != "" {
-		requestURL = fmt.Sprintf("/upstreams/%s/argets/%s", upstreamID, targetID)
+		requestURL = fmt.Sprintf("/upstreams/%s/targets/%s", upstreamID, targetID)
 	} else if upstreamID != "" && target != "" {
-		requestURL = fmt.Sprintf("/upstreams/%s/argets/%s", upstreamID, target)
+		requestURL = fmt.Sprintf("/upstreams/%s/targets/%s", upstreamID, target)
 	} else if upstreamName != "" && targetID != "" {
-		requestURL = fmt.Sprintf("/upstreams/%s/argets/%s", upstreamName, targetID)
+		requestURL = fmt.Sprintf("/upstreams/%s/targets/%s", upstreamName, targetID)
 	} else if upstreamName != "" && target != "" {
-		requestURL = fmt.Sprintf("/upstreams/%s/argets/%s", upstreamName, target)
+		requestURL = fmt.Sprintf("/upstreams/%s/targets/%s", upstreamName, target)
 	}
 
 	ctx, cannel := context.WithTimeout(context.Background(), 30*time.Second)
