@@ -45,6 +45,7 @@ var BasicAuthCommand = cli.Command{
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "username", Usage: "The username to use in the Basic Authentication，when consumer id is not empty"},
 				cli.StringFlag{Name: "password", Usage: "The password to use in the Basic Authentication, when consumer id is not empty"},
+				cli.StringFlag{Name: "consumer_id", Usage: "The unique identifier of the consumer that overrides the existing settings for this specific consumer on incoming requests"},
 			},
 			Action: createBasicAuthCredential,
 		},
