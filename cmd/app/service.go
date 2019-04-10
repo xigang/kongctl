@@ -51,7 +51,7 @@ var serviceFlags = []cli.Flag{
 	},
 	cli.StringFlag{
 		Name:  "name",
-		Usage: "the serevice name",
+		Usage: "the service name",
 	},
 	cli.IntFlag{
 		Name:  "retries",
