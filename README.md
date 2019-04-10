@@ -90,7 +90,7 @@ USAGE:
 
 OPTIONS:
    --id value               the service id
-   --name value             the serevice name
+   --name value             the service name
    --retries value          the number of retries to execute upon failure to proxy (default: 5)
    --procotol value         the protocol used to communicate with the upstream (default: "http")
    --host value             the host of the upstream server
