@@ -18,6 +18,11 @@ Move kongctl binary to your `PATH`
 
 - [Getting-started](docs/getting-started.md)
 
+# Features
+
+- Support for CURD of upstream, target, service, route, consumer, plugin objects.
+- Supports Basic Authentication and Statsd plugins.
+
 # LICENSE
 
 - [Apache License](LICENSE)
