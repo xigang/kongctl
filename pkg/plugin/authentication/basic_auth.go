@@ -103,6 +103,7 @@ type BasicAuthCredential struct {
 	Password string `json:"password"`
 }
 
+//createBasicAuthCredential creeate basic auth Credential for consumer.
 func createBasicAuthCredential(c *cli.Context) error {
 	consumerID := c.String("consumer_id")
 	username := c.String("username")

@@ -55,6 +55,7 @@ var StatsDCommand = cli.Command{
 	Action: createStatsDPlugin,
 }
 
+//createStatsDPlugin create a statsd pulgin for kong api gateway.
 func createStatsDPlugin(c *cli.Context) error {
 	name := c.String("name")
 	host := c.String("host")
