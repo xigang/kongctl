@@ -18,3 +18,6 @@ Move kongctl binary to your `PATH`
 
 - [Getting-started](docs/getting-started.md)
 
+# LICENSE
+
+- [Apache License](LICENSE)
