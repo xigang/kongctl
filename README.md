@@ -10,7 +10,7 @@ To install cli, simply run:
 
 ```
 $ go get github.com/xigang/kongctl
-$ go build -o kongctl
+$ make
 ```
 Move kongctl binary to your `PATH`
 
